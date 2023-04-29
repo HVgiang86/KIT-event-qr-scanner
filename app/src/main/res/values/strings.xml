@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">KIT Event QR Scanner</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="email">Email</string>
+    <string name="stt">STT</string>
+    <string name="id">id</string>
+    <string name="student_code">Mã sinh viên</string>
+    <string name="kit_event_qr_scanner">KIT EVENT QR SCANNER</string>
+    <string name="settings">Settings</string>
+    <string name="export">Export Attendee List</string>
+    <string name="internet_connection_loss_warning">Cannot connect to database! Please check the internet connection!</string>
+</resources>

@@ -1,0 +1,18 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.KITEventQRScanner" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/kit_blue</item>
+        <item name="colorPrimaryDark">@color/kit_dark_blue</item>
+        <item name="colorAccent">@color/orange_900</item>
+        <!-- Customize your theme here. -->
+
+    </style>
+
+    <style name="AppThemeNoActionBar" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:fitsSystemWindows">true</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+
+</resources>
