@@ -18,8 +18,8 @@ object Settings {
 
     private const val TAG = "KIT"
 
-    private var paramList: MutableList<QRParam> = ArrayList()
-    private var firebaseURL = ""
+    var paramList: MutableList<QRParam> = ArrayList()
+    var firebaseURL = ""
 
 
     private fun setDefaultSettings() {

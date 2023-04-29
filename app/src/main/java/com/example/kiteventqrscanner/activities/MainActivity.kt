@@ -23,17 +23,12 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.example.kiteventqrscanner.R
 import com.example.kiteventqrscanner.broadcastreceiver.InternetConnectionChangeReceiver
+import com.example.kiteventqrscanner.firebase.FirebaseHelper
 import com.example.kiteventqrscanner.model.Attendee
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
+import com.example.kiteventqrscanner.qrhelper.QRHelper
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
-import org.json.JSONException
-import org.json.JSONObject
-import java.math.BigInteger
-import java.security.MessageDigest
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import kotlin.math.abs
@@ -42,13 +37,11 @@ import kotlin.math.min
 
 @Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
-
     companion object {
         private const val PERMISSION_CAMERA_REQUEST = 1
         private const val RATIO_4_3_VALUE = 4.0 / 3.0
         private const val RATIO_16_9_VALUE = 16.0 / 9.0
     }
-
 
     private lateinit var previewView: androidx.camera.view.PreviewView
     private lateinit var resultTV: TextView
@@ -60,13 +53,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var actionReceiver: InternetConnectionChangeReceiver
 
-    private var doubleBackPress = false
-
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraSelector: CameraSelector? = null
     private var lensFacing = CameraSelector.LENS_FACING_BACK
     private var previewUseCase: Preview? = null
     private var analysisUseCase: ImageAnalysis? = null
+
     private val screenAspectRatio: Int
         get() {
             // Get screen metrics used to setup camera for full screen resolution
@@ -74,7 +66,6 @@ class MainActivity : AppCompatActivity() {
             return aspectRatio(metrics.widthPixels, metrics.heightPixels)
         }
 
-    private lateinit var database: FirebaseDatabase
     private var recentCode = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,26 +81,13 @@ class MainActivity : AppCompatActivity() {
         splashView = findViewById(R.id.splash_view)
         connectionWarningTV = findViewById(R.id.connection_loss_warning_tv)
 
-        database =
-            Firebase.database("https://kitalk-qr-default-rtdb.asia-southeast1.firebasedatabase.app/")
+        FirebaseHelper.init(com.example.kiteventqrscanner.settings.Settings.firebaseURL)
 
         setupCamera()
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        splash()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        actionReceiver = InternetConnectionChangeReceiver(this)
-        val intentFilter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
-        registerReceiver(actionReceiver , intentFilter)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        unregisterReceiver(actionReceiver)
+        splashScreen()
     }
 
     fun setConnectionWarning(visible: Boolean) {
@@ -127,35 +105,40 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.settings_menu -> {
-                var intent = Intent(this,SettingsActivity::class.java)
+                val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
             }
+
             R.id.export_menu -> {
-                Toast.makeText(this,"Tính năng này chửa làm!" ,Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Tính năng này chửa làm!", Toast.LENGTH_SHORT).show()
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun splash() {
+    private fun splashScreen() {
         Handler().postDelayed(
             { runOnUiThread { this@MainActivity.splashView.visibility = View.GONE } },
             1500L
         )
     }
 
-    private fun getAttendee(content: String): Attendee? {
-        return try {
-            val root = JSONObject(content)
-            val emailStr = "" + root.getString("email")
-            val codeStr = "" + root.getString("code")
-            val id = "KIT" + md5("" + System.currentTimeMillis() + emailStr)
-
-            Attendee(id, emailStr, codeStr)
-        } catch (e: JSONException) {
-            e.printStackTrace()
-            null
+    private fun processAttendee(content: String) {
+        val attendee = QRHelper.getAttendee(content)
+        if (attendee != null) {
+            resultTV.text = "Success!"
+            displayAttendee(attendee)
+            FirebaseHelper.sendToFirebase(attendee)
+        } else {
+            clearAttendeeInfo()
+            resultTV.text = "Not a valid attendee!"
         }
+    }
+
+    private fun clearAttendeeInfo() {
+        idTV.text = ""
+        emailTV.text = ""
+        studentCodeTV.text = ""
     }
 
     private fun displayAttendee(attendee: Attendee) {
@@ -164,27 +147,6 @@ class MainActivity : AppCompatActivity() {
         studentCodeTV.text = attendee.code
     }
 
-    private fun sendToFirebase(attendee: Attendee) {
-
-        try {
-            val ref = database.getReference("attendees")
-            val attendeeRef = ref.child(attendee.id)
-
-            val EMAIL = "email"
-            val CODE = "code"
-
-            var ref1 = attendeeRef.child(EMAIL)
-            ref1.setValue(attendee.email)
-            ref1 = attendeeRef.child(CODE)
-            ref1.setValue(attendee.code)
-
-            Log.d("KIT", "sent to firebase")
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return
-        }
-    }
 
     private fun aspectRatio(width: Int, height: Int): Int {
         val previewRatio = max(width, height).toDouble() / min(width, height)
@@ -323,24 +285,6 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    private fun processAttendee(content: String) {
-        val attendee = getAttendee(content)
-        if (attendee != null) {
-            resultTV.text = "Success!"
-            displayAttendee(attendee)
-            sendToFirebase(attendee)
-        } else {
-            clearAttendeeInfo()
-            resultTV.text = "Not a valid attendee!"
-
-        }
-    }
-
-    private fun clearAttendeeInfo() {
-        idTV.text = ""
-        emailTV.text = ""
-        studentCodeTV.text = ""
-    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -361,10 +305,8 @@ class MainActivity : AppCompatActivity() {
         ContextCompat.checkSelfPermission(it, "android.permission.CAMERA")
     } == PackageManager.PERMISSION_GRANTED
 
-    private fun md5(input: String): String {
-        val md = MessageDigest.getInstance("MD5")
-        return BigInteger(1, md.digest(input.toByteArray())).toString(16).padStart(32, '0')
-    }
+
+    private var doubleBackPress = false
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
@@ -379,6 +321,17 @@ class MainActivity : AppCompatActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             doubleBackPress = false
         }, 2000)
+    }
 
+    override fun onResume() {
+        super.onResume()
+        actionReceiver = InternetConnectionChangeReceiver(this)
+        val intentFilter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
+        registerReceiver(actionReceiver, intentFilter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unregisterReceiver(actionReceiver)
     }
 }
