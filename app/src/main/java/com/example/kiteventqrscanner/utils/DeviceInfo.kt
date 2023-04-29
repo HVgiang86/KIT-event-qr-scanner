@@ -1,10 +1,14 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.kiteventqrscanner.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Build
 
 object DeviceInfo {
+    @SuppressLint("PrivateApi", "HardwareIds")
     fun getSerialNumber(): String? {
         var serialNumber: String?
         try {

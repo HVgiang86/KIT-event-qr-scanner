@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center">
+
+    <EditText
+        android:id="@+id/param_name_tv"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:maxWidth="120dp"
+        android:layout_toStartOf="@id/required_checkbox"
+        android:layout_alignBaseline="@id/required_checkbox"
+        android:inputType="text"
+        android:importantForAutofill="no"
+        android:textColor="@color/black"
+        android:gravity="center|start"
+        tools:ignore="LabelFor" />
+
+    <CheckBox
+        android:id="@+id/required_checkbox"
+        android:layout_width="72dp"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/black"
+        android:minHeight="48dp"
+        android:layout_toStartOf="@id/delete_btn"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:foregroundGravity="center"
+        android:gravity="center" />
+
+    <ImageButton
+        android:id="@+id/delete_btn"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_action_delete"
+        android:background="#00000000"
+        android:scaleType="center"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@id/required_checkbox"
+        android:foregroundGravity="center"
+        android:gravity="center"
+        />
+
+</RelativeLayout>

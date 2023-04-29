@@ -126,12 +126,12 @@ class MainActivity : AppCompatActivity() {
     private fun processAttendee(content: String) {
         val attendee = QRHelper.getAttendee(content)
         if (attendee != null) {
-            resultTV.text = "Success!"
+            resultTV.text = getString(R.string.success)
             displayAttendee(attendee)
             FirebaseHelper.sendToFirebase(attendee)
         } else {
             clearAttendeeInfo()
-            resultTV.text = "Not a valid attendee!"
+            resultTV.text = getString(R.string.not_a_valid_attendee)
         }
     }
 

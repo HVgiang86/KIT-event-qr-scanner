@@ -10,4 +10,12 @@
     <string name="settings">Settings</string>
     <string name="export">Export Attendee List</string>
     <string name="internet_connection_loss_warning">Cannot connect to database! Please check the internet connection!</string>
+    <string name="firebase_url">Firebase URL</string>
+    <string name="url">url</string>
+    <string name="qr_code_parameters">QR code parameters</string>
+    <string name="required">Required</string>
+    <string name="name">Name</string>
+    <string name="new_qr_param">New QR Param</string>
+    <string name="success">Success!</string>
+    <string name="not_a_valid_attendee">Not a valid attendee!</string>
 </resources>

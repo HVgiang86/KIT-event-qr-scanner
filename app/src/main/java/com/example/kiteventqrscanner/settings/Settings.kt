@@ -22,7 +22,7 @@ object Settings {
     var firebaseURL = ""
 
 
-    private fun setDefaultSettings(ctx: Context) {
+    fun setDefaultSettings(ctx: Context) {
         paramList.clear()
         paramList.add(QRParam("email", true))
         paramList.add(QRParam("code", true))
@@ -92,5 +92,12 @@ object Settings {
         paramList.add(QRParam(name.lowercase(), required))
     }
 
+    fun replaceSettings(firebaseUrl: String, paramList: MutableList<QRParam>) {
+        firebaseURL = firebaseUrl
+        this.paramList.clear()
+        for (param in paramList) {
+            this.paramList.add(param)
+        }
+    }
 
 }

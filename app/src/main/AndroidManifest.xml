@@ -16,11 +16,13 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/ic_launcher"
         android:supportsRtl="true"
+        android:screenOrientation="portrait"
         android:theme="@style/Theme.KITEventQRScanner"
         tools:targetApi="31" >
         <activity
             android:name=".activities.SettingsActivity"
             android:theme="@style/AppThemeNoActionBar"
+            android:noHistory="true"
             android:exported="false" />
 
         <receiver
