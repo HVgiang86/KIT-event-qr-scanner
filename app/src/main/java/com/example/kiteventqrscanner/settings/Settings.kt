@@ -22,11 +22,12 @@ object Settings {
     var firebaseURL = ""
 
 
-    private fun setDefaultSettings() {
+    private fun setDefaultSettings(ctx: Context) {
         paramList.clear()
-        paramList.add(QRParam("Email", true))
-        paramList.add(QRParam("Code", true))
+        paramList.add(QRParam("email", true))
+        paramList.add(QRParam("code", true))
         firebaseURL = "https://kitalk-qr-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        saveSettings(ctx)
     }
 
     fun getLocalSettings(ctx: Context) {
@@ -34,13 +35,15 @@ object Settings {
         val settingJSONString = pref.getString(SETTINGS_KEY, "fail")
 
         if ("fail" == settingJSONString)
-            setDefaultSettings()
+            setDefaultSettings(ctx)
 
         try {
             val jsonRoot = JSONObject(settingJSONString!!)
+            firebaseURL = jsonRoot.getString(FIREBASE_URL_KEY)
             val numberOfParams = jsonRoot.getInt(PARAM_AMOUNT_KEY)
+
             if (numberOfParams == 0)
-                setDefaultSettings()
+                setDefaultSettings(ctx)
 
             val jsonArray = jsonRoot.getJSONArray(PARAM_LIST_KEY)
 
@@ -54,8 +57,12 @@ object Settings {
         } catch (e: JSONException) {
             e.printStackTrace()
             Log.d(TAG,"default settings")
-            setDefaultSettings()
+            setDefaultSettings(ctx)
             saveSettings(ctx)
+        }
+
+        for (param in paramList) {
+            Log.d(TAG,"${param.name}: ${param.required}")
         }
     }
 
@@ -69,8 +76,10 @@ object Settings {
             jsonArray.put(jsonObject)
         }
 
-        jsonRoot.put(PARAM_LIST_KEY, jsonArray)
+        jsonRoot.put(FIREBASE_URL_KEY, firebaseURL)
         jsonRoot.put(PARAM_AMOUNT_KEY, paramList.size)
+        jsonRoot.put(PARAM_LIST_KEY, jsonArray)
+
 
         val pref = ctx.getSharedPreferences(PREF_NAME, PREF_MODE)
         val editor = pref.edit()
@@ -80,7 +89,7 @@ object Settings {
     }
 
     fun addSetting(name: String, required: Boolean) {
-        paramList.add(QRParam(name, required))
+        paramList.add(QRParam(name.lowercase(), required))
     }
 
 

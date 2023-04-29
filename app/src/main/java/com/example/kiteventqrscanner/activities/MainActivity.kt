@@ -143,8 +143,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun displayAttendee(attendee: Attendee) {
         idTV.text = attendee.id
-        emailTV.text = attendee.email
-        studentCodeTV.text = attendee.code
+        emailTV.text = attendee.paramList["Email"]
+        //studentCodeTV.text = attendee.code
     }
 
 

@@ -1,3 +1,5 @@
 package com.example.kiteventqrscanner.model
 
-data class Attendee(val id:String, val email: String, val code: String)
+import com.example.kiteventqrscanner.settings.QRParam
+
+data class Attendee(val id:String, val paramList: HashMap<String,String>)
