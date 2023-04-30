@@ -17,6 +17,7 @@
         android:importantForAutofill="no"
         android:textColor="@color/black"
         android:gravity="center|start"
+        android:backgroundTint="@color/black"
         tools:ignore="LabelFor" />
 
     <CheckBox
