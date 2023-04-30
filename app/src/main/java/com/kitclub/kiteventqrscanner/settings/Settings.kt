@@ -25,7 +25,7 @@ object Settings {
     fun setDefaultSettings(ctx: Context) {
         paramList.clear()
         paramList.add(QRParam("email", true))
-        paramList.add(QRParam("code", true))
+        paramList.add(QRParam("code", false))
         firebaseURL = "https://kit-qr-checkin-default-rtdb.asia-southeast1.firebasedatabase.app"
         saveSettings(ctx)
     }
