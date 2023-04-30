@@ -87,7 +87,7 @@ class SettingsActivity : AppCompatActivity() {
             firebaseUrlEdt.text.toString().trim(), adapter.getAfterChangedList()
         )
         Settings.saveSettings(this)
-        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "\nSaved!\n", Toast.LENGTH_SHORT).show()
     }
 
     @Deprecated("Deprecated in Java")

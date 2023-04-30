@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/property_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/kit_welcome"
+        android:textSize="16sp"
+        android:layout_marginTop="24dp"
+        android:textColor="@color/black"
+        />
+
+    <EditText
+        android:id="@+id/property_edt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_below="@id/property_tv"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:text=""
+        android:hint="@string/input_information"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:inputType="text"
+        android:importantForAutofill="no"
+        android:backgroundTint="@color/black"
+        tools:ignore="LabelFor" />
+</RelativeLayout>

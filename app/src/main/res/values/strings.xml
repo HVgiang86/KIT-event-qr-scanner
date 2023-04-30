@@ -23,4 +23,7 @@
     <string name="valid_attendee">Valid Attendee!</string>
     <string name="invalid_attendee">Invalid Attendee!</string>
     <string name="kit_welcome">Welcome to KIT!</string>
+    <string name="input_attendee_information_below">Input Attendee Information Below</string>
+    <string name="save">save</string>
+    <string name="input_information">input information</string>
 </resources>

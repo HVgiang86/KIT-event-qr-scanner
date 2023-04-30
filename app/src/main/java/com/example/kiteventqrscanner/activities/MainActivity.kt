@@ -105,18 +105,19 @@ class MainActivity : AppCompatActivity() {
             R.id.settings_menu -> {
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
-                //reset recentCode
-                recentCode = ""
             }
 
             R.id.check_in_history_menu -> {
-                Toast.makeText(this, "Tính năng này chửa làm!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "\nTính năng này chửa làm!\n", Toast.LENGTH_SHORT).show()
             }
 
             R.id.manual_check_in_menu -> {
-
+                val intent = Intent(this, ManualCheckinActivity::class.java)
+                startActivity(intent)
             }
         }
+        //reset recentCode
+        recentCode = ""
         return super.onOptionsItemSelected(item)
     }
 
