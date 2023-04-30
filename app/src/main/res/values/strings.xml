@@ -17,5 +17,10 @@
     <string name="name">Name</string>
     <string name="new_qr_param">New QR Param</string>
     <string name="success">Success!</string>
-    <string name="not_a_valid_attendee">Not a valid attendee!</string>
+    <string name="not_a_valid_attendee">Not a valid attendee! Please Check the information!</string>
+    <string name="manual_checkin">Manual Checkin</string>
+    <string name="checkin_history">Checkin History</string>
+    <string name="valid_attendee">Valid Attendee!</string>
+    <string name="invalid_attendee">Invalid Attendee!</string>
+    <string name="kit_welcome">Welcome to KIT!</string>
 </resources>

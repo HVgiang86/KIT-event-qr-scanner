@@ -1,156 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.MainActivity"
     android:fitsSystemWindows="true"
-    >
+    tools:context=".activities.MainActivity">
 
-    <include layout="@layout/toolbar"
+    <include
         android:id="@+id/toolbar"
-        app:title="@string/app_name"
-        />
+        layout="@layout/toolbar"
+        app:title="@string/app_name" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar"
-        android:background="#F2F2F2"
-        >
+        android:background="#F2F2F2">
 
         <androidx.camera.view.PreviewView
             android:id="@+id/camera_preview"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginLeft="32dp"
-            android:layout_marginRight="32dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="64dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/attendee_info"
-            />
-
-        <TextView
-            android:id="@+id/result_tv"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/attendee_info"
-            android:textSize="14sp"
-            android:text="Welcome to KIT"
-            android:gravity="center"
-            android:layout_margin="16dp"
-            android:textColor="@color/black"
-            />
+            android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/attendee_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            android:layout_margin="32dp"
-            android:background="@color/white"
-            >
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginEnd="8dp"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="@color/black"
+        </androidx.camera.view.PreviewView>
 
-                    android:layout_marginTop="8dp"
-                    android:text="@string/id"
-                    android:textStyle="bold"
-                    />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-
-                    android:layout_marginTop="8dp"
-                    android:textColor="@color/black"
-                    android:text="@string/email"
-                    android:textStyle="bold"
-                    />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-
-                    android:layout_marginTop="8dp"
-                    android:textColor="@color/black"
-                    android:text="@string/student_code"
-                    android:textStyle="bold"
-                    />
-            </androidx.appcompat.widget.LinearLayoutCompat>
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginLeft="8dp"
-                >
-                <TextView
-                    android:id="@+id/id_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="@color/black"
-
-                    android:layout_marginTop="8dp"
-                    android:text="null"
-                    />
-                <TextView
-                    android:id="@+id/email_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="@color/black"
-
-                    android:layout_marginTop="8dp"
-                    android:text="null"
-                    />
-                <TextView
-                    android:id="@+id/code_tv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="@color/black"
-                    android:text="null"
-                    android:layout_marginTop="8dp"
-                    />
-            </androidx.appcompat.widget.LinearLayoutCompat>
-
-        </androidx.appcompat.widget.LinearLayoutCompat>
+        <ImageButton
+            android:id="@+id/flash_toggle_btn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:onClick="toggleFlashLight"
+            android:src="@drawable/ic_flash_off"
+            app:layout_constraintLeft_toLeftOf="@id/camera_preview"
+            app:layout_constraintTop_toTopOf="@id/camera_preview" />
 
         <TextView
             android:id="@+id/connection_loss_warning_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            android:textStyle="bold|italic"
+            android:layout_margin="8dp"
+            android:background="@color/kit_yellow"
+            android:gravity="center"
             android:text="@string/internet_connection_loss_warning"
             android:textColor="@color/kit_red"
-            android:background="@color/kit_yellow"
-            android:layout_margin="8dp"
             android:textSize="12sp"
+            android:textStyle="bold|italic"
             android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@color/white"
             android:gravity="center"
-            />
+            >
+            <TextView
+                android:id="@+id/scan_result_tv"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/kit_welcome"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+
+                />
+        </RelativeLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <RelativeLayout
         android:id="@+id/splash_view"
@@ -168,8 +87,8 @@
 
         <ImageView
             android:id="@+id/kit_white_ic"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
             android:layout_centerInParent="true"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"

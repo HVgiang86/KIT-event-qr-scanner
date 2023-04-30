@@ -14,6 +14,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -24,7 +25,6 @@ import androidx.core.content.ContextCompat
 import com.example.kiteventqrscanner.R
 import com.example.kiteventqrscanner.broadcastreceiver.InternetConnectionChangeReceiver
 import com.example.kiteventqrscanner.firebase.FirebaseHelper
-import com.example.kiteventqrscanner.model.Attendee
 import com.example.kiteventqrscanner.qrhelper.QRHelper
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -45,11 +45,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var previewView: androidx.camera.view.PreviewView
     private lateinit var resultTV: TextView
-    private lateinit var idTV: TextView
-    private lateinit var emailTV: TextView
-    private lateinit var studentCodeTV: TextView
     private lateinit var splashView: RelativeLayout
     private lateinit var connectionWarningTV: TextView
+    private lateinit var flashToggleButton: ImageButton
 
     private lateinit var actionReceiver: InternetConnectionChangeReceiver
 
@@ -58,6 +56,10 @@ class MainActivity : AppCompatActivity() {
     private var lensFacing = CameraSelector.LENS_FACING_BACK
     private var previewUseCase: Preview? = null
     private var analysisUseCase: ImageAnalysis? = null
+
+    private var camera: Camera? = null
+
+    private var flashState = false
 
     private val screenAspectRatio: Int
         get() {
@@ -73,13 +75,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        resultTV = findViewById(R.id.result_tv)
+        resultTV = findViewById(R.id.scan_result_tv)
         previewView = findViewById(R.id.camera_preview)
-        idTV = findViewById(R.id.id_tv)
-        emailTV = findViewById(R.id.email_tv)
-        studentCodeTV = findViewById(R.id.code_tv)
         splashView = findViewById(R.id.splash_view)
         connectionWarningTV = findViewById(R.id.connection_loss_warning_tv)
+        flashToggleButton = findViewById(R.id.flash_toggle_btn)
 
         FirebaseHelper.init(com.example.kiteventqrscanner.settings.Settings.firebaseURL)
 
@@ -91,10 +91,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun setConnectionWarning(visible: Boolean) {
-        if (visible)
-            connectionWarningTV.visibility = View.VISIBLE
-        else
-            connectionWarningTV.visibility = View.GONE
+        if (visible) connectionWarningTV.visibility = View.VISIBLE
+        else connectionWarningTV.visibility = View.GONE
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -107,10 +105,16 @@ class MainActivity : AppCompatActivity() {
             R.id.settings_menu -> {
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
+                //reset recentCode
+                recentCode = ""
             }
 
-            R.id.export_menu -> {
+            R.id.check_in_history_menu -> {
                 Toast.makeText(this, "Tính năng này chửa làm!", Toast.LENGTH_SHORT).show()
+            }
+
+            R.id.manual_check_in_menu -> {
+
             }
         }
         return super.onOptionsItemSelected(item)
@@ -118,35 +122,34 @@ class MainActivity : AppCompatActivity() {
 
     private fun splashScreen() {
         Handler().postDelayed(
-            { runOnUiThread { this@MainActivity.splashView.visibility = View.GONE } },
-            1500L
+            { runOnUiThread { this@MainActivity.splashView.visibility = View.GONE } }, 1500L
         )
     }
 
     private fun processAttendee(content: String) {
         val attendee = QRHelper.getAttendee(content)
         if (attendee != null) {
-            resultTV.text = getString(R.string.success)
-            displayAttendee(attendee)
+            showResult(true)
             FirebaseHelper.sendToFirebase(attendee)
         } else {
-            clearAttendeeInfo()
-            resultTV.text = getString(R.string.not_a_valid_attendee)
+            showResult(false)
         }
     }
 
-    private fun clearAttendeeInfo() {
-        idTV.text = ""
-        emailTV.text = ""
-        studentCodeTV.text = ""
+    private fun showResult(valid: Boolean) {
+        if (valid) {
+            resultTV.text = getString(R.string.valid_attendee)
+            resultTV.setTextColor(resources.getColor(R.color.kit_blue))
+        } else {
+            resultTV.text = getString(R.string.not_a_valid_attendee)
+            resultTV.setTextColor(resources.getColor(R.color.kit_red))
+        }
     }
 
-    private fun displayAttendee(attendee: Attendee) {
-        idTV.text = attendee.id
-        emailTV.text = attendee.paramList["Email"]
-        //studentCodeTV.text = attendee.code
+    private fun resetResultNoticeText() {
+        resultTV.text = getString(R.string.kit_welcome)
+        resultTV.setTextColor(resources.getColor(R.color.black))
     }
-
 
     private fun aspectRatio(width: Int, height: Int): Int {
         val previewRatio = max(width, height).toDouble() / min(width, height)
@@ -154,6 +157,18 @@ class MainActivity : AppCompatActivity() {
             return AspectRatio.RATIO_4_3
         }
         return AspectRatio.RATIO_16_9
+    }
+
+    fun toggleFlashLight(v: View) {
+        if (!flashState) {
+            camera?.cameraControl?.enableTorch(true)
+            flashState = true
+            flashToggleButton.setImageResource(R.drawable.ic_flash_on)
+        } else {
+            camera?.cameraControl?.enableTorch(false)
+            flashState = false
+            flashToggleButton.setImageResource(R.drawable.ic_flash_off)
+        }
     }
 
     private fun setupCamera() {
@@ -164,24 +179,26 @@ class MainActivity : AppCompatActivity() {
             {
                 try {
                     cameraProvider = cameraProviderFuture.get()
+
+
                     if (isCameraPermissionGranted()) {
                         bindCameraUseCases()
                     } else {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             requestPermissions(
-                                arrayOf("android.permission.CAMERA"),
-                                PERMISSION_CAMERA_REQUEST
+                                arrayOf("android.permission.CAMERA"), PERMISSION_CAMERA_REQUEST
                             )
                         }
                     }
+
+
                 } catch (e: ExecutionException) {
                     // Handle any errors (including cancellation) here.
                     Log.e("QrScanViewModel", "Unhandled exception", e)
                 } catch (e: InterruptedException) {
                     Log.e("QrScanViewModel", "Unhandled exception", e)
                 }
-            },
-            ContextCompat.getMainExecutor(this)
+            }, ContextCompat.getMainExecutor(this)
         )
     }
 
@@ -189,6 +206,7 @@ class MainActivity : AppCompatActivity() {
         bindPreviewUseCase()
         bindAnalyseUseCase()
     }
+
 
     private fun bindPreviewUseCase() {
         if (cameraProvider == null) {
@@ -198,15 +216,16 @@ class MainActivity : AppCompatActivity() {
             cameraProvider?.unbind(previewUseCase)
         }
 
-        previewUseCase = Preview.Builder()
-            .setTargetAspectRatio(screenAspectRatio)
-            .setTargetRotation(previewView.display.rotation)
-            .build()
+        var builder = Preview.Builder().setTargetAspectRatio(screenAspectRatio)
+        if (previewView.display != null) builder =
+            builder.setTargetRotation(previewView.display.rotation)
+
+        previewUseCase = builder.build()
 
         previewUseCase?.setSurfaceProvider(previewView.surfaceProvider)
 
         try {
-            cameraSelector?.let {
+            camera = cameraSelector?.let {
                 cameraProvider?.bindToLifecycle(this, it, previewUseCase)
             }
         } catch (_: IllegalStateException) {
@@ -224,10 +243,12 @@ class MainActivity : AppCompatActivity() {
             cameraProvider?.unbind(analysisUseCase)
         }
 
-        analysisUseCase = ImageAnalysis.Builder()
-            .setTargetAspectRatio(screenAspectRatio)
-            .setTargetRotation(previewView.display.rotation)
-            .build()
+        var builder = ImageAnalysis.Builder().setTargetAspectRatio(screenAspectRatio)
+
+        if (previewView.display != null) builder =
+            builder.setTargetRotation(previewView.display.rotation)
+
+        analysisUseCase = builder.build()
 
         // Initialize our background executor
         val cameraExecutor = Executors.newSingleThreadExecutor()
@@ -237,9 +258,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         try {
-            cameraSelector?.let {
-                cameraProvider?.bindToLifecycle(/* lifecycleOwner = */this,
-                    it, analysisUseCase
+            camera = cameraSelector?.let {
+                cameraProvider?.bindToLifecycle(/* lifecycleOwner = */this, it, analysisUseCase
                 )
             }
         } catch (_: IllegalStateException) {
@@ -249,47 +269,42 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
     private fun processImageProxy(
-        barcodeScanner: BarcodeScanner,
-        imageProxy: ImageProxy
+        barcodeScanner: BarcodeScanner, imageProxy: ImageProxy
     ) {
         if (imageProxy.image == null) return
         val inputImage =
             InputImage.fromMediaImage(imageProxy.image!!, imageProxy.imageInfo.rotationDegrees)
 
-        barcodeScanner.process(inputImage)
-            .addOnSuccessListener { barcodes ->
-                val barcode = barcodes.getOrNull(0)
-                barcode?.rawValue?.let { code ->
+        barcodeScanner.process(inputImage).addOnSuccessListener { barcodes ->
+            val barcode = barcodes.getOrNull(0)
+            barcode?.rawValue?.let { code ->
 
-                    Log.d("KIT", "code: $code")
-                    Log.d("KIT", "recent: $recentCode")
+                Log.d("KIT", "code: $code")
+                Log.d("KIT", "recent: $recentCode")
 
-                    if (recentCode.isEmpty()) {
-                        recentCode = code
+                if (recentCode.isEmpty()) {
+                    recentCode = code
+                    processAttendee(code)
+                } else {
+                    if (recentCode != code) {
                         processAttendee(code)
-                    } else {
-                        if (recentCode != code) {
-                            processAttendee(code)
-                            Log.d("KIT", code)
-                            recentCode = code
-                        }
+                        Log.d("KIT", code)
+                        recentCode = code
                     }
-
-
                 }
-            }
-            .addOnFailureListener {
 
-            }.addOnCompleteListener {
-                imageProxy.close()
+
             }
+        }.addOnFailureListener {
+
+        }.addOnCompleteListener {
+            imageProxy.close()
+        }
     }
 
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
         if (requestCode == PERMISSION_CAMERA_REQUEST) {
             if (isCameraPermissionGranted()) {

@@ -16,9 +16,23 @@ object QRHelper {
             val root = JSONObject(content)
             val attendeeParamList: HashMap<String, String> = HashMap()
             for (param in Settings.paramList) {
-                val paramValue = root.getString(param.name)
-                attendeeParamList[param.name] = paramValue
-                Log.d("KIT", "${param.name}: $paramValue")
+                if (param.required) {
+                    val paramValue = root.getString(param.name)
+                    attendeeParamList[param.name] = paramValue
+                    Log.d("KIT", "${param.name}: $paramValue")
+                }
+            }
+
+            for (param in Settings.paramList) {
+                if (!param.required) {
+                    try {
+                        val paramValue = root.getString(param.name)
+                        attendeeParamList[param.name] = paramValue
+                        Log.d("KIT", "${param.name}: $paramValue")
+                    } catch (e: Exception) {
+                        continue
+                    }
+                }
             }
             Attendee(id, attendeeParamList)
 
