@@ -10,10 +10,10 @@ class App: Application() {
         super.onCreate()
         Log.d("KIT","App started ${System.currentTimeMillis()}")
         Settings.getLocalSettings(applicationContext)
+
     }
 
     override fun onTerminate() {
-
         RealmHelper.close()
         super.onTerminate()
     }

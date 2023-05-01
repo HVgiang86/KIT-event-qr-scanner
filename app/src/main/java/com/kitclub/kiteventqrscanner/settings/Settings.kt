@@ -2,6 +2,7 @@ package com.kitclub.kiteventqrscanner.settings
 
 import android.content.Context
 import android.util.Log
+import com.kitclub.kiteventqrscanner.utils.LoginVerifier
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -15,6 +16,7 @@ object Settings {
     private const val PARAM_NAME_KEY = "name"
     private const val PARAM_REQUIRED_KEY = "required"
     private const val PARAM_LIST_KEY = "param list"
+    private const val ENCRYPTED_PASSWORD_KEY = "encrypted password"
 
     private const val TAG = "KIT"
 
@@ -33,6 +35,8 @@ object Settings {
     fun getLocalSettings(ctx: Context) {
         val pref = ctx.getSharedPreferences(PREF_NAME, PREF_MODE)
         val settingJSONString = pref.getString(SETTINGS_KEY, "fail")
+
+        loadEncryptedPassword(ctx)
 
         if ("fail" == settingJSONString)
             setDefaultSettings(ctx)
@@ -98,6 +102,55 @@ object Settings {
         for (param in paramList) {
             Settings.paramList.add(param)
         }
+    }
+
+    private fun loadEncryptedPassword(ctx: Context){
+        val pref = ctx.getSharedPreferences(PREF_NAME, PREF_MODE)
+        val s = pref.getString(ENCRYPTED_PASSWORD_KEY,"").toString()
+        LoginVerifier.encryptedPassword = s
+        Log.d(TAG,"encryptedpassword: $s")
+    }
+
+    fun updateEncryptedPassword(password: String, ctx: Context) {
+        val pref = ctx.getSharedPreferences(PREF_NAME, PREF_MODE)
+        val editor = pref.edit()
+        editor.putString(ENCRYPTED_PASSWORD_KEY, password)
+        editor.apply()
+    }
+
+    fun getSettingsFromJSON(settingJSONString: String?,context: Context) {
+        val firebaseURL1: String
+        val paramList1: MutableList<QRParam> = ArrayList()
+
+        try {
+            val jsonRoot = JSONObject(settingJSONString!!)
+            firebaseURL1 = jsonRoot.getString(FIREBASE_URL_KEY)
+            val numberOfParams = jsonRoot.getInt(PARAM_AMOUNT_KEY)
+
+            if (numberOfParams == 0)
+                return
+
+            val jsonArray = jsonRoot.getJSONArray(PARAM_LIST_KEY)
+
+            for (i in 1.rangeTo(numberOfParams)) {
+                val jsonObject = JSONObject(jsonArray[i - 1].toString())
+                val name = jsonObject.getString(PARAM_NAME_KEY)
+                val required = jsonObject.getBoolean(PARAM_REQUIRED_KEY)
+                paramList1.add(QRParam(name, required))
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return
+        }
+
+        firebaseURL = firebaseURL1
+        paramList.clear()
+        for (param in paramList1) {
+            paramList.add(param)
+        }
+        Log.d(TAG,"Save settings from db")
+        saveSettings(context)
     }
 
 }

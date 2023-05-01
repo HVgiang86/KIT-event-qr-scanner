@@ -15,7 +15,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageButton
-import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -30,7 +29,6 @@ import com.kitclub.kiteventqrscanner.broadcastreceiver.InternetConnectionChangeR
 import com.kitclub.kiteventqrscanner.database.RealmHelper
 import com.kitclub.kiteventqrscanner.firebase.FirebaseHelper
 import com.kitclub.kiteventqrscanner.qrhelper.QRHelper
-import com.kitclub.kiteventqrscanner.settings.Settings
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import kotlin.math.abs
@@ -47,7 +45,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var previewView: androidx.camera.view.PreviewView
     private lateinit var resultTV: TextView
-    private lateinit var splashView: RelativeLayout
     private lateinit var connectionWarningTV: TextView
     private lateinit var flashToggleButton: ImageButton
 
@@ -79,19 +76,16 @@ class MainActivity : AppCompatActivity() {
 
         resultTV = findViewById(R.id.scan_result_tv)
         previewView = findViewById(R.id.camera_preview)
-        splashView = findViewById(R.id.splash_view)
         connectionWarningTV = findViewById(R.id.connection_loss_warning_tv)
         flashToggleButton = findViewById(R.id.flash_toggle_btn)
 
-        FirebaseHelper.init(Settings.firebaseURL)
 
-        RealmHelper.init()
         setupCamera()
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        Log.d("KIT","ready to use ${System.currentTimeMillis()}")
-        splashScreen()
+        Log.d("KIT", "ready to use ${System.currentTimeMillis()}")
+
     }
 
     fun setConnectionWarning(visible: Boolean) {
@@ -127,11 +121,6 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun splashScreen() {
-        Handler().postDelayed(
-            { runOnUiThread { this@MainActivity.splashView.visibility = View.GONE } }, 1000L
-        )
-    }
 
     private fun processAttendee(content: String) {
         val attendee = QRHelper.getAttendee(content)

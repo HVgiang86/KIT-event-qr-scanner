@@ -73,42 +73,6 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    <RelativeLayout
-        android:id="@+id/splash_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible"
-        android:background="@color/kit_blue"
-        android:fitsSystemWindows="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"
 
-        >
-
-        <ImageView
-            android:id="@+id/kit_white_ic"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:layout_centerInParent="true"
-            android:adjustViewBounds="true"
-            android:scaleType="fitXY"
-            android:src="@drawable/ic_kit_white" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/kit_white_ic"
-            android:text="@string/kit_event_qr_scanner"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="32dp"
-            android:textSize="16sp"
-            android:textColor="@color/white"
-            android:fontFamily="sans-serif-medium"
-            android:textStyle="bold"
-            />
-    </RelativeLayout>
 </RelativeLayout>
 

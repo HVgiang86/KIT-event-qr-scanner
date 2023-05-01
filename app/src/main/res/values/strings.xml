@@ -27,4 +27,8 @@
     <string name="save">save</string>
     <string name="input_information">input information</string>
     <string name="clear_history">Clear history</string>
+    <string name="login_with_password">Login with password</string>
+    <string name="password">Password</string>
+    <string name="login">login</string>
+    <string name="wrong_password">*Wrong password </string>
 </resources>
