@@ -8,8 +8,11 @@ import com.kitclub.kiteventqrscanner.activities.MainActivity
 import com.kitclub.kiteventqrscanner.utils.DeviceInfo
 
 
-class InternetConnectionChangeReceiver(private var mainActivity: MainActivity) : BroadcastReceiver() {
-
+class InternetConnectionChangeReceiver() : BroadcastReceiver() {
+    private lateinit var mainActivity: MainActivity
+    constructor(mainActivity: MainActivity) : this(){
+        this.mainActivity = mainActivity
+    }
     @SuppressLint("UnsafeProtectedBroadcastReceiver")
     override fun onReceive(context: Context, intent: Intent) {
         mainActivity.setConnectionWarning(!DeviceInfo.isNetworkAvailable(context))

@@ -19,7 +19,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileWriter
-import java.util.Date
+import java.time.LocalDateTime
+import java.util.Calendar
 
 @Suppress("DEPRECATION")
 class CheckinHistoryActivity : AppCompatActivity() {
@@ -57,6 +58,7 @@ class CheckinHistoryActivity : AppCompatActivity() {
         return true
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.export_menu -> {
@@ -77,6 +79,7 @@ class CheckinHistoryActivity : AppCompatActivity() {
         adapter.notifyDataSetChanged()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun exportMenu() {
         try {
             val directoryPath = "/storage/emulated/0/KIT event check-in"
@@ -84,14 +87,15 @@ class CheckinHistoryActivity : AppCompatActivity() {
 
             if (!directory.exists()) directory.mkdirs()
 
-            val date = Date()
+            val date = Calendar.getInstance().time
+
             val filename =
-                "KIT-attendees-${System.currentTimeMillis() / 1000 / 60 / 60}-${System.currentTimeMillis() / 1000 / 60}-${System.currentTimeMillis() / 1000}-${date.date}-${date.month}-${date.year}.json"
+                "KIT-attendees-${date.hours}:${date.minutes}:${date.seconds} ${date.date}-${date.month+1}-${date.year+1900}.json"
             val file = File(directory, filename)
 
             if (!file.exists()) file.createNewFile()
 
-            Log.d("KIT","filepath: ${file.absolutePath}")
+            Log.d("KIT", "filepath: ${file.absolutePath}")
             val writer = FileWriter(file)
 
             val jsonRoot = JSONObject()
@@ -105,7 +109,7 @@ class CheckinHistoryActivity : AppCompatActivity() {
             Log.d("KIT", jsonRoot.toString())
             writer.write(jsonRoot.toString())
             writer.close()
-            showNoticeDialog("Check-in history saved as JSON in file: ${file.name}!")
+            showNoticeDialog("Check-in history saved as JSON in file:\n${file.name}!")
         } catch (e: Exception) {
             e.printStackTrace()
             showNoticeDialog("There's an error when saving Check-in history into file!")
