@@ -43,10 +43,14 @@ Cryptography Image Gallery là ứng dụng cho phép các bạn trong ban tổ 
 
  - Check-in tự động bằng cách quét mã QR trên email ticket và ghi nhận lượt tham gia
  - Check-in thủ công
+ - Yêu cầu đăng nhập bằng mật khẩu định trước
+ - Đồng bộ settings với Database
+ - Mã hoá bảo vệ dữ liệu
  - Tốc độ check-in nhanh chóng
  - Đồng bộ online với Firebase
  - Lưu trữ Local với Realm Database
  - Xem lịch sử check-in
+ - Xuất lịch sử check-in thành file JSON
  - Cài đặt các tham số của mã QR một cách linh hoạt
  - Có thể bật đèn Flash
 
