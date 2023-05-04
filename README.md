@@ -15,10 +15,10 @@ Cryptography Image Gallery là ứng dụng cho phép các bạn trong ban tổ 
 
 # install  
 
-[<img src="https://dply.me/tm8bc7/button/large" alt="Try it on your device via DeployGate" width="165" height="64" />](https://dply.me/tm8bc7#install)
+[<img src="https://dply.me/tm8bc7/button/large" alt="Try it on your device via DeployGate" width="140" height="40" />](https://dply.me/tm8bc7#install)
 
 
-[<img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="165" height="64" />](https://play.google.com/store/apps/details?id=com.kitclub.kiteventqrscanner)
+[<img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="140" height="40" />](https://play.google.com/store/apps/details?id=com.kitclub.kiteventqrscanner)
 
   
 # Contributors
