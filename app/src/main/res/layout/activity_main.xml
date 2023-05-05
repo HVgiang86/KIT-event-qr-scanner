@@ -30,7 +30,6 @@
             android:id="@+id/flash_toggle_btn"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:onClick="toggleFlashLight"
             android:src="@drawable/ic_flash_off"
             app:layout_constraintLeft_toLeftOf="@id/camera_preview"
             app:layout_constraintTop_toTopOf="@id/camera_preview" />
@@ -72,6 +71,12 @@
         </RelativeLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <View
+        android:id="@+id/blur_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#79000000"
+        />
 
 
 </RelativeLayout>

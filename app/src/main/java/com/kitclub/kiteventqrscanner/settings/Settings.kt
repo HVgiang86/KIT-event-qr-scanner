@@ -2,21 +2,24 @@ package com.kitclub.kiteventqrscanner.settings
 
 import android.content.Context
 import android.util.Log
+import com.kitclub.kiteventqrscanner.application.AppStatus
 import com.kitclub.kiteventqrscanner.utils.LoginVerifier
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
 object Settings {
-    private const val PREF_NAME = "com.example.kiteventqrscanner.settings.PREF"
+    private const val PREF_NAME = "com.kitclub.kiteventqrscanner.settings.PREF"
     private const val PREF_MODE = Context.MODE_PRIVATE
-    private const val SETTINGS_KEY = "com.example.kiteventqrscanner.settings.PREF.SETTINGS_KEY"
-    private const val FIREBASE_URL_KEY = "com.example.kiteventqrscanner.settings.PREF.FIREBASE_URL_KEY"
+    private const val SETTINGS_KEY = "com.kitclub.kiteventqrscanner.settings.PREF.SETTINGS_KEY"
+    private const val FIREBASE_URL_KEY =
+        "com.kitclub.kiteventqrscanner.settings.PREF.FIREBASE_URL_KEY"
     private const val PARAM_AMOUNT_KEY = "param amount"
     private const val PARAM_NAME_KEY = "name"
     private const val PARAM_REQUIRED_KEY = "required"
     private const val PARAM_LIST_KEY = "param list"
     private const val ENCRYPTED_PASSWORD_KEY = "encrypted password"
+    private const val LOGIN_STATUS_KEY = "login status"
 
     private const val TAG = "KIT"
 
@@ -29,6 +32,8 @@ object Settings {
         paramList.add(QRParam("email", true))
         paramList.add(QRParam("code", false))
         firebaseURL = "https://kit-qr-checkin-default-rtdb.asia-southeast1.firebasedatabase.app"
+        AppStatus.loginStatus = false
+        LoginVerifier.encryptedPassword = "bH9z/wG65sFIKovGhj6rlA=="
         saveSettings(ctx)
     }
 
@@ -37,7 +42,9 @@ object Settings {
         val settingJSONString = pref.getString(SETTINGS_KEY, "fail")
 
         loadEncryptedPassword(ctx)
+        AppStatus.loginStatus = pref.getBoolean(LOGIN_STATUS_KEY, false)
 
+        Log.d(TAG, "Login status: ${AppStatus.loginStatus}")
         if ("fail" == settingJSONString)
             setDefaultSettings(ctx)
 
@@ -60,13 +67,13 @@ object Settings {
 
         } catch (e: JSONException) {
             e.printStackTrace()
-            Log.d(TAG,"default settings")
+            Log.d(TAG, "default settings")
             setDefaultSettings(ctx)
             saveSettings(ctx)
         }
 
         for (param in paramList) {
-            Log.d(TAG,"${param.name}: ${param.required}")
+            Log.d(TAG, "${param.name}: ${param.required}")
         }
     }
 
@@ -83,6 +90,7 @@ object Settings {
         jsonRoot.put(FIREBASE_URL_KEY, firebaseURL)
         jsonRoot.put(PARAM_AMOUNT_KEY, paramList.size)
         jsonRoot.put(PARAM_LIST_KEY, jsonArray)
+        jsonRoot.put(LOGIN_STATUS_KEY, AppStatus.loginStatus)
 
 
         val pref = ctx.getSharedPreferences(PREF_NAME, PREF_MODE)
@@ -104,21 +112,34 @@ object Settings {
         }
     }
 
-    private fun loadEncryptedPassword(ctx: Context){
+    private fun loadEncryptedPassword(ctx: Context) {
         val pref = ctx.getSharedPreferences(PREF_NAME, PREF_MODE)
-        val s = pref.getString(ENCRYPTED_PASSWORD_KEY,"").toString()
+        val s = pref.getString(ENCRYPTED_PASSWORD_KEY, "").toString()
+        if (checkNewPassword(s)) {
+            AppStatus.loginStatus = false
+        }
         LoginVerifier.encryptedPassword = s
-        Log.d(TAG,"encryptedpassword: $s")
+        Log.d(TAG, "encryptedpassword: $s")
+    }
+
+    private fun checkNewPassword(password: String): Boolean {
+        return password != LoginVerifier.encryptedPassword
     }
 
     fun updateEncryptedPassword(password: String, ctx: Context) {
-        val pref = ctx.getSharedPreferences(PREF_NAME, PREF_MODE)
-        val editor = pref.edit()
-        editor.putString(ENCRYPTED_PASSWORD_KEY, password)
-        editor.apply()
+        if (checkNewPassword(password)) {
+            AppStatus.loginStatus = false
+            LoginVerifier.encryptedPassword = password
+            val pref = ctx.getSharedPreferences(PREF_NAME, PREF_MODE)
+            val editor = pref.edit()
+            editor.putString(ENCRYPTED_PASSWORD_KEY, password)
+            Log.d(TAG, "Saved new password")
+            editor.apply()
+        }
     }
 
-    fun getSettingsFromJSON(settingJSONString: String?,context: Context) {
+
+    fun getSettingsFromJSON(settingJSONString: String?, context: Context) {
         val firebaseURL1: String
         val paramList1: MutableList<QRParam> = ArrayList()
 
@@ -149,7 +170,7 @@ object Settings {
         for (param in paramList1) {
             paramList.add(param)
         }
-        Log.d(TAG,"Save settings from db")
+        Log.d(TAG, "Save settings from db")
         saveSettings(context)
     }
 

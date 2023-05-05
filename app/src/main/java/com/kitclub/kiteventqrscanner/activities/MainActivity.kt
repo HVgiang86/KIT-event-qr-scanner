@@ -17,6 +17,7 @@ import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -47,6 +48,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var resultTV: TextView
     private lateinit var connectionWarningTV: TextView
     private lateinit var flashToggleButton: ImageButton
+    private lateinit var blurOverlayView: View
+
+    private lateinit var connectionlessDialog: AlertDialog
 
     private lateinit var actionReceiver: InternetConnectionChangeReceiver
 
@@ -78,9 +82,13 @@ class MainActivity : AppCompatActivity() {
         previewView = findViewById(R.id.camera_preview)
         connectionWarningTV = findViewById(R.id.connection_loss_warning_tv)
         flashToggleButton = findViewById(R.id.flash_toggle_btn)
+        blurOverlayView = findViewById(R.id.blur_overlay)
+
+        flashToggleButton.setOnClickListener { toggleFlashLight() }
 
 
         setupCamera()
+        initConnectionlessDialog()
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -88,9 +96,29 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun initConnectionlessDialog() {
+        val dialog = AlertDialog.Builder(this)
+        dialog.setTitle("No internet connection found!")
+            .setIcon(R.drawable.ic_warning)
+            .setMessage("This app cannot work without an internet connection. Please check your Wifi or 3G/4G connection!").setCancelable(false)
+
+        connectionlessDialog = dialog.create()
+    }
+
     fun setConnectionWarning(visible: Boolean) {
-        if (visible) connectionWarningTV.visibility = View.VISIBLE
-        else connectionWarningTV.visibility = View.GONE
+        if (visible) {
+            connectionWarningTV.visibility = View.VISIBLE
+            connectionlessDialog.show()
+            if (flashState)
+                toggleFlashLight()
+
+            blurOverlayView.visibility = View.VISIBLE
+        }
+        else {
+            connectionWarningTV.visibility = View.GONE
+            connectionlessDialog.cancel()
+            blurOverlayView.visibility = View.GONE
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -156,7 +184,7 @@ class MainActivity : AppCompatActivity() {
         return AspectRatio.RATIO_16_9
     }
 
-    fun toggleFlashLight(v: View) {
+    private fun toggleFlashLight() {
         if (!flashState) {
             camera?.cameraControl?.enableTorch(true)
             flashState = true
@@ -338,6 +366,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         actionReceiver = InternetConnectionChangeReceiver(this)
+        resultTV.text = getString(R.string.kit_welcome)
         val intentFilter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
         registerReceiver(actionReceiver, intentFilter)
     }
@@ -346,4 +375,6 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         unregisterReceiver(actionReceiver)
     }
+
+
 }

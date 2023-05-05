@@ -33,7 +33,6 @@ object FirebaseHelper {
         database.getReference("password").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val s = snapshot.value.toString().trim()
-                LoginVerifier.encryptedPassword = s
                 Settings.updateEncryptedPassword(s, ctx)
             }
 

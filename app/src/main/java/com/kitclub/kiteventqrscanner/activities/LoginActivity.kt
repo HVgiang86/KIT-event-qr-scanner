@@ -13,6 +13,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.kitclub.kiteventqrscanner.R
+import com.kitclub.kiteventqrscanner.application.AppStatus
 import com.kitclub.kiteventqrscanner.database.RealmHelper
 import com.kitclub.kiteventqrscanner.firebase.FirebaseHelper
 import com.kitclub.kiteventqrscanner.settings.Settings
@@ -50,17 +51,15 @@ class LoginActivity : AppCompatActivity() {
         RealmHelper.init()
 
         splashScreen()
+        if (AppStatus.loginStatus)
+            enterApp()
     }
 
     @SuppressLint("SetTextI18n")
     private fun requireLogin() {
-        if (checkLogin()) {
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            startActivity(intent)
-        } else {
-            warningTV.visibility = View.VISIBLE
-        }
+        if (checkLogin()) enterApp()
+        else warningTV.visibility = View.VISIBLE
+
     }
 
     private fun checkLogin(): Boolean {
@@ -85,5 +84,13 @@ class LoginActivity : AppCompatActivity() {
             { runOnUiThread { this@LoginActivity.splashView.visibility = View.GONE } }, 1500L
         )
     }
+
+    private fun enterApp() {
+        AppStatus.loginStatus = true
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        startActivity(intent)
+    }
+
 
 }
