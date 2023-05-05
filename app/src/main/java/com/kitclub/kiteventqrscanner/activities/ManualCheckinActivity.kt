@@ -1,7 +1,7 @@
 package com.kitclub.kiteventqrscanner.activities
 
 import android.os.Bundle
-import android.view.View
+import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -17,11 +17,15 @@ import com.kitclub.kiteventqrscanner.utils.MD5
 class ManualCheckinActivity : AppCompatActivity() {
     val filledRequiredField = HashMap<String, Boolean>()
     private lateinit var attendee: Attendee
+    private lateinit var saveBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manual_checkin)
         init()
+
+        saveBtn = findViewById(R.id.save_btn)
+        saveBtn.setOnClickListener { saveAttendeeRequest() }
 
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
         toolbar.title = "Manual Checkin"
@@ -32,11 +36,11 @@ class ManualCheckinActivity : AppCompatActivity() {
         toolbar.setNavigationOnClickListener { onBackPressed() }
 
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
-        val adapter = ManualCheckinAdapter(attendee, Settings.paramList,this)
+        val adapter = ManualCheckinAdapter(attendee, Settings.paramList, this)
         recyclerView.adapter = adapter
     }
 
-    fun saveAttendee(v: View) {
+    private fun saveAttendeeRequest() {
         confirmSave()
     }
 
