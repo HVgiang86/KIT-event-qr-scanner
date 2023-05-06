@@ -39,15 +39,21 @@ Cryptography Image Gallery là ứng dụng cho phép các bạn trong ban tổ 
  
  # QR data structure
  
- Ứng dụng có khả năng scan các mã QR để lấy thông tin người tham dự.
+ - Ứng dụng có khả năng scan các mã QR để lấy thông tin người tham dự.
  Data chứa trong mã QR bắt buộc phải ở dạng JSON:
  
- - *Ví dụ:*
+  - *Ví dụ:*
  
  ``` 
  {"email": "HVGiang86@gmail.com", "code": "CT050413"}
  ```
- 
+ - Data thu được sau khi scan mã QR sẽ được lưu trữ trên firebase Realtime database
+ - Một model Attendee khi lưu trữ trên Firebase bao gồm các thông tin:
+    - "ID": hash MD5 của String: "KIT" + currentTimeInMilliseconds + Device Serial Number
+    - "email": từ QR
+    - "code": từ QR
+    
+ - Trong đó, trường email bắt buộc, trường code có thể trống
  
 
 # Feature
