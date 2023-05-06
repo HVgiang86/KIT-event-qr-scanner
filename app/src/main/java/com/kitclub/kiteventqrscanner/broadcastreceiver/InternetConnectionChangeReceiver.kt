@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.kitclub.kiteventqrscanner.activities.MainActivity
+import com.kitclub.kiteventqrscanner.view.activities.MainActivity
 import com.kitclub.kiteventqrscanner.application.AppStatus
 import com.kitclub.kiteventqrscanner.utils.DeviceInfo
 

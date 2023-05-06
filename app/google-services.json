@@ -1,33 +1,34 @@
 {
   "project_info": {
-    "project_number": "297260611993",
-    "project_id": "kitalk-qr",
-    "storage_bucket": "kitalk-qr.appspot.com"
+    "project_number": "320772215658",
+    "firebase_url": "https://kit-qr-checkin-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "kit-qr-checkin",
+    "storage_bucket": "kit-qr-checkin.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:297260611993:android:34a59b7583625923807b08",
+        "mobilesdk_app_id": "1:320772215658:android:31471a45f889443b460b13",
         "android_client_info": {
           "package_name": "com.kitclub.kiteventqrscanner"
         }
       },
       "oauth_client": [
         {
-          "client_id": "297260611993-25qjh71lakbbp835e85883fn2ucfdhjd.apps.googleusercontent.com",
+          "client_id": "320772215658-3uvq68vrf14febslph0r802lbosfoa2n.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCQxWsAtOGo7xkBcA-Jfhhrrhcz6V8SRmY"
+          "current_key": "AIzaSyClYIgniC8J2odV5X5_SniOxe7sQcKzzis"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "297260611993-25qjh71lakbbp835e85883fn2ucfdhjd.apps.googleusercontent.com",
+              "client_id": "320772215658-3uvq68vrf14febslph0r802lbosfoa2n.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -13,6 +13,10 @@
 
     <uses-feature android:name="android.hardware.camera" />
 
+    <uses-permission
+        android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove" />
+
     <application
         android:name=".application.App"
         android:allowBackup="true"
@@ -26,7 +30,7 @@
         android:theme="@style/Theme.KITEventQRScanner"
         tools:targetApi="31">
         <activity
-            android:name=".activities.LoginActivity"
+            android:name=".view.activities.LoginActivity"
             android:exported="true"
             android:noHistory="true"
             android:theme="@style/AppThemeNoActionBar">
@@ -37,15 +41,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.CheckinHistoryActivity"
+            android:name=".view.activities.CheckinHistoryActivity"
             android:exported="false"
             android:theme="@style/AppThemeNoActionBar" />
         <activity
-            android:name=".activities.ManualCheckinActivity"
+            android:name=".view.activities.ManualCheckinActivity"
             android:exported="false"
             android:theme="@style/AppThemeNoActionBar" />
         <activity
-            android:name=".activities.SettingsActivity"
+            android:name=".view.activities.SettingsActivity"
             android:exported="false"
             android:noHistory="true"
             android:theme="@style/AppThemeNoActionBar" />
@@ -62,7 +66,7 @@
         </receiver>
 
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".view.activities.MainActivity"
             android:exported="false"
             android:theme="@style/AppThemeNoActionBar">
 
@@ -71,6 +75,10 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
     </application>
 
 </manifest>

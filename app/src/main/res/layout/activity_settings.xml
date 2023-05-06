@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.kitclub.kiteventqrscanner.activities.SettingsActivity"
+    tools:context="com.kitclub.kiteventqrscanner.view.activities.SettingsActivity"
     android:background="@color/white">
 
     <include layout="@layout/toolbar"

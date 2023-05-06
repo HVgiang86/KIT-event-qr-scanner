@@ -31,4 +31,6 @@
     <string name="password">Password</string>
     <string name="login">login</string>
     <string name="wrong_password">*Wrong password </string>
+    <string name="scanning">Scanning</string>
+    <string name="cloud_sync">Cloud Sync</string>
 </resources>
