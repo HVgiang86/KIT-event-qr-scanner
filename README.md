@@ -37,6 +37,16 @@ Cryptography Image Gallery là ứng dụng cho phép các bạn trong ban tổ 
         src="https://cdn-icons-png.flaticon.com/512/25/25231.png"/>
 <p align="left">
  
+ # QR data structure
+ 
+ Ứng dụng có khả năng scan các mã QR để lấy thông tin người tham dự.
+ Data chứa trong mã QR bắt buộc phải ở dạng JSON:
+ 
+ - *Ví dụ:*
+ 
+ ``` {"email": "HVGiang86@gmail.com", "code": "CT050413"}
+ 
+ 
 
 # Feature
 Ứng dụng này cho phép bạn:
