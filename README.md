@@ -44,7 +44,9 @@ Cryptography Image Gallery là ứng dụng cho phép các bạn trong ban tổ 
  
  - *Ví dụ:*
  
- ``` {"email": "HVGiang86@gmail.com", "code": "CT050413"}
+ ``` 
+ {"email": "HVGiang86@gmail.com", "code": "CT050413"}
+ ```
  
  
 
