@@ -7,11 +7,13 @@ import android.os.Environment
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.kitclub.kiteventqrscanner.BigDataTestAsyncTask
 import com.kitclub.kiteventqrscanner.R
 import com.kitclub.kiteventqrscanner.model.firebase.FirebaseHelper
 import com.kitclub.kiteventqrscanner.model.models.attendee.Attendee
@@ -51,6 +53,9 @@ class CheckinHistoryActivity : AppCompatActivity() {
 
         attendeeList = AttendeeList.attendeeList
 
+        val attendeeCountTV: TextView = findViewById(R.id.attendees_count_tv)
+        attendeeCountTV.text = "We have ${attendeeList.size} attendees!"
+
         val linearLayoutManager = LinearLayoutManager(this)
         linearLayoutManager.reverseLayout = true
         linearLayoutManager.stackFromEnd = true
@@ -71,10 +76,6 @@ class CheckinHistoryActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.export_menu -> {
                 exportMenu()
-            }
-
-            R.id.cloud_sync -> {
-
             }
         }
         return super.onOptionsItemSelected(item)
