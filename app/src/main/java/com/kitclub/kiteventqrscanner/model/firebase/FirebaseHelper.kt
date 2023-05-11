@@ -9,6 +9,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.kitclub.kiteventqrscanner.model.models.attendee.Attendee
+import com.kitclub.kiteventqrscanner.model.models.attendee.AttendeeList
 import com.kitclub.kiteventqrscanner.model.models.settings.Settings
 import com.kitclub.kiteventqrscanner.model.repository.SettingsReferences
 
@@ -23,6 +24,7 @@ object FirebaseHelper {
             database = Firebase.database(firebaseURL)
             setEncryptedPasswordValueListener(context)
             setSettingsValueListener(context)
+            //setAttendeesValueListener()
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -56,10 +58,46 @@ object FirebaseHelper {
         })
     }
 
+    private fun setAttendeesValueListener() {
+        database.getReference("attendees").addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                Log.d(TAG,"Sync database!")
+                val list = AttendeeList.forSyncList
+                list.clear()
+                try {
+                    if (snapshot.exists()) {
+                        if (snapshot.hasChildren()) {
+                            val children = snapshot.children
+                            for (ref in children) {
+                                Log.d(TAG,"ref changed: ${ref.key}")
+                                val id:String = ref.key as String
+                                val params = HashMap<String,String>()
+                                for (param in Settings.paramList) {
+                                    val ref1 = ref.child(param.name)
+                                    params[param.name] = ref1.value as String
+                                }
+                                list.add(Attendee(id,params))
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                //AttendeeList.requireSync = true
+                Log.d(TAG,"Updated on: " + list.size)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.d(TAG, "Firebase error")
+            }
+        })
+    }
+
     fun sendToFirebase(attendee: Attendee) {
 
         try {
             val ref = database.getReference("attendees")
+
             val attendeeRef = ref.child(attendee.id)
 
             var ref1: DatabaseReference

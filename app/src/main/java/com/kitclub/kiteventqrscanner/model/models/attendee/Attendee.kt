@@ -1,7 +1,6 @@
 package com.kitclub.kiteventqrscanner.model.models.attendee
 
 import com.kitclub.kiteventqrscanner.model.models.settings.Settings
-import com.kitclub.kiteventqrscanner.model.repository.SettingsReferences
 
 
 class Attendee(var id: String, var paramList: HashMap<String, String>) {

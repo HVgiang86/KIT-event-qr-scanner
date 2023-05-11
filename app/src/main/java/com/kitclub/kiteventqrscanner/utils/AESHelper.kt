@@ -39,8 +39,7 @@ object AESHelper {
         // Encrypt the data
         val encryptedData = cipher.doFinal(rawData)
 
-        val s = Base64.encodeToString(encryptedData, Base64.DEFAULT).trim()
-        return s
+        return Base64.encodeToString(encryptedData, Base64.DEFAULT).trim()
     }
 
     fun encrypt(raw: ByteArray): ByteArray {
@@ -66,9 +65,7 @@ object AESHelper {
         val rawData = Base64.decode(raw, Base64.DEFAULT)
         val decryptedData = cipher.doFinal(rawData)
 
-        val s = String(decryptedData, charset("utf-8")).trim()
-
-        return s
+        return String(decryptedData, charset("utf-8")).trim()
     }
 
     fun decrypt(raw: ByteArray): ByteArray {

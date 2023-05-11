@@ -9,6 +9,7 @@ import com.kitclub.kiteventqrscanner.R
 import com.kitclub.kiteventqrscanner.model.firebase.FirebaseHelper
 import com.kitclub.kiteventqrscanner.model.models.attendee.Attendee
 import com.kitclub.kiteventqrscanner.model.models.settings.Settings
+import com.kitclub.kiteventqrscanner.model.repository.RealmHelper
 import com.kitclub.kiteventqrscanner.utils.DeviceInfo
 import com.kitclub.kiteventqrscanner.utils.MD5
 import com.kitclub.kiteventqrscanner.view.adapters.ManualCheckinAdapter
@@ -46,6 +47,7 @@ class ManualCheckinActivity : AppCompatActivity() {
 
     private fun saveAttendee() {
         FirebaseHelper.sendToFirebase(attendee)
+        //RealmHelper.save(attendee)
     }
 
 

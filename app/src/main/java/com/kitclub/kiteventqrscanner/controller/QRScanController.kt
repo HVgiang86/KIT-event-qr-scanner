@@ -16,6 +16,7 @@ object QRScanController {
     }
 
     fun requestNewAttendee(content: String): Int {
+
         val attendee = QRParser.getAttendee(content)
         if (attendee != null) {
             if (!containAttendee(attendee)) {

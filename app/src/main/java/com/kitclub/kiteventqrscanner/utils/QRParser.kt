@@ -9,8 +9,7 @@ import org.json.JSONObject
 object QRParser {
     fun getAttendee(content: String): Attendee? {
         return try {
-            val id =
-                "KIT" + MD5.hash("" + System.currentTimeMillis() + DeviceInfo.getSerialNumber())
+
             val root = JSONObject(content)
             val attendeeParamList: HashMap<String, String> = HashMap()
             for (param in Settings.paramList) {
@@ -33,6 +32,14 @@ object QRParser {
                     }
                 }
             }
+            var id =
+                "KIT" + MD5.hash("" + System.currentTimeMillis() + DeviceInfo.getSerialNumber())
+            try {
+                id = "KIT" + MD5.hash("" + attendeeParamList["email"] + attendeeParamList["code"])
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
             Attendee(id, attendeeParamList)
 
         } catch (e: Exception) {
