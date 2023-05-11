@@ -3,24 +3,27 @@ package com.kitclub.kiteventqrscanner.view.activities
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kitclub.kiteventqrscanner.R
+import com.kitclub.kiteventqrscanner.model.firebase.FirebaseHelper
 import com.kitclub.kiteventqrscanner.model.models.attendee.Attendee
 import com.kitclub.kiteventqrscanner.model.models.attendee.AttendeeList
 import com.kitclub.kiteventqrscanner.model.models.settings.Settings
-import com.kitclub.kiteventqrscanner.model.repository.RealmHelper
 import com.kitclub.kiteventqrscanner.view.adapters.CheckinHistoryAdapter
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileWriter
 import java.util.Calendar
+
 
 @Suppress("DEPRECATION")
 class CheckinHistoryActivity : AppCompatActivity() {
@@ -48,7 +51,12 @@ class CheckinHistoryActivity : AppCompatActivity() {
 
         attendeeList = AttendeeList.attendeeList
 
+        val linearLayoutManager = LinearLayoutManager(this)
+        linearLayoutManager.reverseLayout = true
+        linearLayoutManager.stackFromEnd = true
+
         val recycler: RecyclerView = findViewById(R.id.recycler_view)
+        recycler.layoutManager = linearLayoutManager
         adapter = CheckinHistoryAdapter(attendeeList, Settings.paramList, this)
         recycler.adapter = adapter
     }
@@ -65,8 +73,8 @@ class CheckinHistoryActivity : AppCompatActivity() {
                 exportMenu()
             }
 
-            R.id.clear_menu -> {
-                confirmClear()
+            R.id.cloud_sync -> {
+
             }
         }
         return super.onOptionsItemSelected(item)
@@ -74,16 +82,18 @@ class CheckinHistoryActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun clearHistory() {
-        RealmHelper.clear()
         attendeeList.clear()
         adapter.notifyDataSetChanged()
+        FirebaseHelper.deleteAllRecord()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun exportMenu() {
         try {
-            val directoryPath = "/storage/emulated/0/KIT event check-in"
-            val directory = File(directoryPath)
+            val downloadPath =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val directoryPath = "KIT event check-in"
+            val directory = File(downloadPath, directoryPath)
 
             if (!directory.exists()) directory.mkdirs()
 
@@ -109,7 +119,7 @@ class CheckinHistoryActivity : AppCompatActivity() {
             Log.d("KIT", jsonRoot.toString())
             writer.write(jsonRoot.toString())
             writer.close()
-            showNoticeDialog("Check-in history saved as JSON in file:\nfiles/KIT event check-in/${file.name}!")
+            showNoticeDialog("Check-in history saved as JSON in file:\n/Downloads/KIT event check-in/${file.name}!")
         } catch (e: Exception) {
             e.printStackTrace()
             showNoticeDialog("There's an error when saving Check-in history into file!")
@@ -128,8 +138,7 @@ class CheckinHistoryActivity : AppCompatActivity() {
 
     private fun confirmClear() {
         val dialog = AlertDialog.Builder(this)
-        dialog.setTitle("Delete all check-in history?")
-            .setIcon(R.drawable.ic_action_save)
+        dialog.setTitle("Delete all check-in history?").setIcon(R.drawable.ic_action_save)
             .setMessage("All your history will be deleted!").setCancelable(false)
             .setPositiveButton("Delete") { _, _ ->
                 clearHistory()
@@ -142,8 +151,7 @@ class CheckinHistoryActivity : AppCompatActivity() {
 
     private fun confirmCloudSync() {
         val dialog = AlertDialog.Builder(this)
-        dialog.setTitle("Cloud Sync?")
-            .setIcon(R.drawable.ic_cloud_sync)
+        dialog.setTitle("Cloud Sync?").setIcon(R.drawable.ic_cloud_sync)
             .setMessage("Sync all check-in history from Firebase database?").setCancelable(false)
             .setPositiveButton("Sync") { _, _ ->
                 cloudSync()

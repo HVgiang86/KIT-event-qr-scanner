@@ -2,14 +2,15 @@ package com.kitclub.kiteventqrscanner.view.activities
 
 import android.os.Bundle
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.kitclub.kiteventqrscanner.R
 import com.kitclub.kiteventqrscanner.model.firebase.FirebaseHelper
 import com.kitclub.kiteventqrscanner.model.models.attendee.Attendee
+import com.kitclub.kiteventqrscanner.model.models.attendee.AttendeeList
 import com.kitclub.kiteventqrscanner.model.models.settings.Settings
-import com.kitclub.kiteventqrscanner.model.repository.RealmHelper
 import com.kitclub.kiteventqrscanner.utils.DeviceInfo
 import com.kitclub.kiteventqrscanner.utils.MD5
 import com.kitclub.kiteventqrscanner.view.adapters.ManualCheckinAdapter
@@ -45,9 +46,16 @@ class ManualCheckinActivity : AppCompatActivity() {
         confirmSave()
     }
 
-    private fun saveAttendee() {
-        FirebaseHelper.sendToFirebase(attendee)
-        //RealmHelper.save(attendee)
+    private fun saveAttendee(): Boolean {
+
+        return if (!AttendeeList.containIgnoreId(attendee)) {
+            FirebaseHelper.sendToFirebase(attendee)
+            AttendeeList.attendeeList.add(attendee)
+            true
+        } else {
+            Toast.makeText(this, "Existing attendee", Toast.LENGTH_SHORT).show()
+            false
+        }
     }
 
 
@@ -71,8 +79,8 @@ class ManualCheckinActivity : AppCompatActivity() {
                 .setIcon(R.drawable.ic_action_save)
                 .setMessage("All your changed will be saved").setCancelable(false)
                 .setPositiveButton("Save") { _, _ ->
-                    saveAttendee()
-                    finish()
+                    if (saveAttendee())
+                        finish()
                 }.setNegativeButton("Cancel") { dialog1, _ ->
                     dialog1.cancel()
                 }.setNeutralButton("Don't save") { _, _ ->

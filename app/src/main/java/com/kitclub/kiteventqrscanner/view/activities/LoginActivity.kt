@@ -18,7 +18,6 @@ import com.kitclub.kiteventqrscanner.controller.LoginController
 import com.kitclub.kiteventqrscanner.controller.QRScanController
 import com.kitclub.kiteventqrscanner.model.firebase.FirebaseHelper
 import com.kitclub.kiteventqrscanner.model.models.settings.Settings
-import com.kitclub.kiteventqrscanner.model.repository.RealmHelper
 import com.kitclub.kiteventqrscanner.utils.AESHelper
 
 @Suppress("DEPRECATION")
@@ -63,9 +62,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun appInit() {
         AESHelper.init()
-        RealmHelper.init()
         FirebaseHelper.init(Settings.firebaseURL, applicationContext)
-        QRScanController.init()
     }
 
     private fun checkLogin(): Boolean {

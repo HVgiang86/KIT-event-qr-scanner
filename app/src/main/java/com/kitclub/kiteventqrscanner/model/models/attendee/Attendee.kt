@@ -12,4 +12,5 @@ class Attendee(var id: String, var paramList: HashMap<String, String>) {
         }
         return true
     }
+
 }

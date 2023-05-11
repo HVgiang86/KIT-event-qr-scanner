@@ -2,12 +2,7 @@ package com.kitclub.kiteventqrscanner.application
 
 import android.app.Application
 import android.util.Log
-import com.kitclub.kiteventqrscanner.controller.QRScanController
-import com.kitclub.kiteventqrscanner.model.firebase.FirebaseHelper
-import com.kitclub.kiteventqrscanner.model.models.settings.Settings
-import com.kitclub.kiteventqrscanner.model.repository.RealmHelper
 import com.kitclub.kiteventqrscanner.model.repository.SettingsReferences
-import com.kitclub.kiteventqrscanner.utils.AESHelper
 
 class App: Application() {
     override fun onCreate() {
@@ -18,7 +13,6 @@ class App: Application() {
     }
 
     override fun onTerminate() {
-        RealmHelper.close()
         Log.d("KIT","app terminated")
         super.onTerminate()
     }

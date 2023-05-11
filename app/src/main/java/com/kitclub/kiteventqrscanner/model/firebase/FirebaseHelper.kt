@@ -1,17 +1,21 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.kitclub.kiteventqrscanner.model.firebase
 
 import android.content.Context
 import android.util.Log
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.functions.HttpsCallableReference
 import com.google.firebase.ktx.Firebase
 import com.kitclub.kiteventqrscanner.model.models.attendee.Attendee
 import com.kitclub.kiteventqrscanner.model.models.attendee.AttendeeList
-import com.kitclub.kiteventqrscanner.model.models.settings.Settings
 import com.kitclub.kiteventqrscanner.model.repository.SettingsReferences
+
 
 object FirebaseHelper {
     private const val TAG = "KIT"
@@ -19,12 +23,14 @@ object FirebaseHelper {
     private var database =
         Firebase.database("https://kit-qr-checkin-default-rtdb.asia-southeast1.firebasedatabase.app")
 
+    private val db = FirebaseFirestore.getInstance().collection("attendees")
+
     fun init(firebaseURL: String, context: Context) {
         try {
             database = Firebase.database(firebaseURL)
             setEncryptedPasswordValueListener(context)
             setSettingsValueListener(context)
-            //setAttendeesValueListener()
+            setOnAttendeeChanged()
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -49,7 +55,7 @@ object FirebaseHelper {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val s = snapshot.value.toString().trim()
                 SettingsReferences.getSettingsFromJSON(s, context)
-                Log.d(TAG,"Loaded settings from db")
+                Log.d(TAG, "Loaded settings from db")
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -58,60 +64,89 @@ object FirebaseHelper {
         })
     }
 
-    private fun setAttendeesValueListener() {
-        database.getReference("attendees").addValueEventListener(object : ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                Log.d(TAG,"Sync database!")
-                val list = AttendeeList.forSyncList
-                list.clear()
-                try {
-                    if (snapshot.exists()) {
-                        if (snapshot.hasChildren()) {
-                            val children = snapshot.children
-                            for (ref in children) {
-                                Log.d(TAG,"ref changed: ${ref.key}")
-                                val id:String = ref.key as String
-                                val params = HashMap<String,String>()
-                                for (param in Settings.paramList) {
-                                    val ref1 = ref.child(param.name)
-                                    params[param.name] = ref1.value as String
-                                }
-                                list.add(Attendee(id,params))
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-                //AttendeeList.requireSync = true
-                Log.d(TAG,"Updated on: " + list.size)
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.d(TAG, "Firebase error")
+    private fun setOnAttendeeChanged() {
+
+        db.addSnapshotListener { value, error ->
+
+            val changedList = value?.documentChanges
+            val allListEvent = changedList?.size == value?.documents?.size
+            if (!changedList.isNullOrEmpty()) {
+                for (document in changedList) {
+
+                    try {
+
+                        //detect added event
+                        if (document.oldIndex == -1) {
+
+                            val id = document.document.id
+                            val paramList: HashMap<String, String> =
+                                document.document.data as HashMap<String, String>
+                            val attendee = Attendee(id, paramList)
+                            AttendeeList.attendeeList.add(attendee)
+
+                        } else if (document.newIndex == -1) { // detect removed event
+
+                            val id = document.document.id
+                            if (allListEvent) AttendeeList.attendeeList.clear()
+
+                            if (AttendeeList.containId(id)) AttendeeList.removeById(id)
+                        } else { //detect modify event
+
+                            val id = document.document.id
+                            val paramList: HashMap<String, String> =
+                                document.document.data as HashMap<String, String>
+                            val attendee = Attendee(id, paramList)
+                            if (AttendeeList.containId(id)) AttendeeList.modifyById(id, attendee)
+                        }
+
+
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
             }
-        })
+            Log.d(TAG, "Done sync")
+            error?.printStackTrace()
+        }
+    }
+
+    fun deleteAllRecord() {
+        deleteAtPath("/attendees")
+    }
+
+    /**
+     * Call the 'recursiveDelete' callable function with a path to initiate
+     * a server-side delete.
+     */
+    private fun deleteAtPath(path: String) {
+        val data: MutableMap<String, Any> = HashMap()
+        data["path"] = path
+        val deleteFn: HttpsCallableReference =
+            FirebaseFunctions.getInstance().getHttpsCallable("recursiveDelete")
+        deleteFn.call(data).addOnSuccessListener {
+            Log.d(TAG, "Firestore delete $path successfully")
+        }.addOnFailureListener {
+            Log.d(TAG, "Firestore delete $path fail")
+        }
     }
 
     fun sendToFirebase(attendee: Attendee) {
 
         try {
-            val ref = database.getReference("attendees")
+            db.runCatching {
+                val document = db.document(attendee.id)
+                document.set(attendee.paramList).addOnSuccessListener {
+                    Log.d(TAG, "Check-in success fully")
+                }.addOnFailureListener { Log.d(TAG, "Firestore error") }
 
-            val attendeeRef = ref.child(attendee.id)
-
-            var ref1: DatabaseReference
-            for (param in Settings.paramList) {
-                ref1 = attendeeRef.child(param.name)
-                ref1.setValue(attendee.paramList[param.name])
             }
-
-            Log.d("KIT", "sent to firebase")
 
         } catch (e: Exception) {
             e.printStackTrace()
             return
         }
     }
+
 
 }
