@@ -8,12 +8,12 @@
         app:showAsAction="always"
 
         />
-
-    <!--<item android:id="@+id/cloud_sync"
+    <item android:id="@+id/cloud_sync"
         android:icon="@drawable/ic_cloud_sync"
         android:title="@string/cloud_sync"
         app:showAsAction="always"
-        />-->
+        />
+
 
     <item android:id="@+id/clear_menu"
         android:icon="@drawable/ic_delete_white"

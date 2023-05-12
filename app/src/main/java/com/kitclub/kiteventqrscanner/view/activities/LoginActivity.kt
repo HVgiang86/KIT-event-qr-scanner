@@ -2,6 +2,7 @@ package com.kitclub.kiteventqrscanner.view.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Handler
 import android.text.method.PasswordTransformationMethod
@@ -11,14 +12,14 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.kitclub.kiteventqrscanner.R
-import com.kitclub.kiteventqrscanner.application.AppStatus
+import com.kitclub.kiteventqrscanner.application.AppState
+import com.kitclub.kiteventqrscanner.broadcastreceiver.InternetConnectionChangeReceiver
 import com.kitclub.kiteventqrscanner.controller.LoginController
-import com.kitclub.kiteventqrscanner.controller.QRScanController
 import com.kitclub.kiteventqrscanner.model.firebase.FirebaseHelper
 import com.kitclub.kiteventqrscanner.model.models.settings.Settings
-import com.kitclub.kiteventqrscanner.model.repository.RealmHelper
 import com.kitclub.kiteventqrscanner.utils.AESHelper
 
 @Suppress("DEPRECATION")
@@ -28,6 +29,9 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var loginBtn: Button
     private lateinit var splashView: RelativeLayout
     private lateinit var warningTV: TextView
+
+    private lateinit var connectionlessDialog: AlertDialog
+    private lateinit var actionReceiver: InternetConnectionChangeReceiver<LoginActivity>
 
     private var isPasswordVisible = false
 
@@ -48,9 +52,10 @@ class LoginActivity : AppCompatActivity() {
         visiblePasswordBtn.setOnClickListener { changePasswordVisible() }
 
         appInit()
+        initConnectionlessDialog()
 
         splashScreen()
-        if (AppStatus.loginStatus)
+        if (AppState.loginStatus)
             enterApp()
     }
 
@@ -63,9 +68,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun appInit() {
         AESHelper.init()
-        RealmHelper.init()
         FirebaseHelper.init(Settings.firebaseURL, applicationContext)
-        QRScanController.init()
     }
 
     private fun checkLogin(): Boolean {
@@ -91,12 +94,41 @@ class LoginActivity : AppCompatActivity() {
         )
     }
 
+    private fun initConnectionlessDialog() {
+        val dialog = AlertDialog.Builder(this)
+        dialog.setTitle("No internet connection found!")
+            .setIcon(R.drawable.ic_warning)
+            .setMessage("This app cannot work without an internet connection. Please check your Wifi or 3G/4G connection!")
+            .setCancelable(false)
+
+        connectionlessDialog = dialog.create()
+    }
+
     private fun enterApp() {
-        AppStatus.loginStatus = true
+        AppState.loginStatus = true
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         startActivity(intent)
     }
 
+    fun setConnectionWarning(visible: Boolean) {
+        if (visible) {
+            connectionlessDialog.show()
 
+        } else {
+            connectionlessDialog.cancel()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        actionReceiver = InternetConnectionChangeReceiver(this)
+        val intentFilter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
+        registerReceiver(actionReceiver, intentFilter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unregisterReceiver(actionReceiver)
+    }
 }
