@@ -2,7 +2,7 @@ package com.kitclub.kiteventqrscanner.model.repository
 
 import android.content.Context
 import android.util.Log
-import com.kitclub.kiteventqrscanner.application.AppStatus
+import com.kitclub.kiteventqrscanner.application.AppState
 import com.kitclub.kiteventqrscanner.controller.LoginController
 import com.kitclub.kiteventqrscanner.model.models.settings.QRParam
 import com.kitclub.kiteventqrscanner.model.models.settings.Settings
@@ -30,7 +30,7 @@ object SettingsReferences {
         Settings.paramList.add(QRParam("email", true))
         Settings.paramList.add(QRParam("code", false))
         Settings.firebaseURL = "https://kit-qr-checkin-default-rtdb.asia-southeast1.firebasedatabase.app"
-        AppStatus.loginStatus = false
+        AppState.loginStatus = false
         LoginController.encryptedPassword = "bH9z/wG65sFIKovGhj6rlA=="
         saveSettings(ctx)
     }
@@ -40,9 +40,9 @@ object SettingsReferences {
         val settingJSONString = pref.getString(SETTINGS_KEY, "fail")
 
         loadEncryptedPassword(ctx)
-        AppStatus.loginStatus = pref.getBoolean(LOGIN_STATUS_KEY, false)
+        AppState.loginStatus = pref.getBoolean(LOGIN_STATUS_KEY, false)
 
-        Log.d(TAG, "Login status: ${AppStatus.loginStatus}")
+        Log.d(TAG, "Login status: ${AppState.loginStatus}")
 
         if ("fail" == settingJSONString)
             setDefaultSettings(ctx)
@@ -89,7 +89,7 @@ object SettingsReferences {
         jsonRoot.put(FIREBASE_URL_KEY, Settings.firebaseURL)
         jsonRoot.put(PARAM_AMOUNT_KEY, Settings.paramList.size)
         jsonRoot.put(PARAM_LIST_KEY, jsonArray)
-        jsonRoot.put(LOGIN_STATUS_KEY, AppStatus.loginStatus)
+        jsonRoot.put(LOGIN_STATUS_KEY, AppState.loginStatus)
 
 
         val pref = ctx.getSharedPreferences(PREF_NAME, PREF_MODE)
@@ -115,7 +115,7 @@ object SettingsReferences {
         val pref = ctx.getSharedPreferences(PREF_NAME, PREF_MODE)
         val s = pref.getString(ENCRYPTED_PASSWORD_KEY, "").toString()
         if (checkNewPassword(s)) {
-            AppStatus.loginStatus = false
+            AppState.loginStatus = false
         }
         LoginController.encryptedPassword = s
         Log.d(TAG, "encryptedpassword: $s")
@@ -127,7 +127,7 @@ object SettingsReferences {
 
     fun updateEncryptedPassword(password: String, ctx: Context) {
         if (checkNewPassword(password)) {
-            AppStatus.loginStatus = false
+            AppState.loginStatus = false
             LoginController.encryptedPassword = password
             val pref = ctx.getSharedPreferences(PREF_NAME, PREF_MODE)
             val editor = pref.edit()

@@ -1,6 +1,6 @@
 package com.kitclub.kiteventqrscanner.application
 
-object AppStatus {
+object AppState {
     var loginStatus = false
     var internetConnectionStatus = false
 }

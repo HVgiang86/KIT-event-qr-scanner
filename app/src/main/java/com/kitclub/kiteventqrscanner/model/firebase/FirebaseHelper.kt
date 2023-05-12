@@ -9,8 +9,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.functions.FirebaseFunctions
-import com.google.firebase.functions.HttpsCallableReference
 import com.google.firebase.ktx.Firebase
 import com.kitclub.kiteventqrscanner.model.models.attendee.Attendee
 import com.kitclub.kiteventqrscanner.model.models.attendee.AttendeeList
@@ -155,7 +153,6 @@ object FirebaseHelper {
         }.addOnFailureListener {
             Log.d(TAG, "sync fail")
         }
-
     }
 
 }

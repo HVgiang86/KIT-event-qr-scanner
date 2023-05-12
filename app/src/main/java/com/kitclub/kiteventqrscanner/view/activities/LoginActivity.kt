@@ -15,7 +15,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.kitclub.kiteventqrscanner.R
-import com.kitclub.kiteventqrscanner.application.AppStatus
+import com.kitclub.kiteventqrscanner.application.AppState
 import com.kitclub.kiteventqrscanner.broadcastreceiver.InternetConnectionChangeReceiver
 import com.kitclub.kiteventqrscanner.controller.LoginController
 import com.kitclub.kiteventqrscanner.model.firebase.FirebaseHelper
@@ -55,7 +55,7 @@ class LoginActivity : AppCompatActivity() {
         initConnectionlessDialog()
 
         splashScreen()
-        if (AppStatus.loginStatus)
+        if (AppState.loginStatus)
             enterApp()
     }
 
@@ -105,7 +105,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun enterApp() {
-        AppStatus.loginStatus = true
+        AppState.loginStatus = true
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         startActivity(intent)

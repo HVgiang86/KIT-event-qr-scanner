@@ -1,6 +1,7 @@
 package com.kitclub.kiteventqrscanner.view.activities
 
 import android.annotation.SuppressLint
+import android.content.ContextWrapper
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -111,15 +112,26 @@ class CheckinHistoryActivity : AppCompatActivity() {
             val downloadPath =
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             val directoryPath = "KIT event check-in"
-            val directory = File(downloadPath, directoryPath)
+            var directory = File(downloadPath, directoryPath)
 
-            if (!directory.exists()) directory.mkdirs()
+            Log.d("KIT","environment: ${directory.absolutePath}")
+
+            if (!directory.exists()) {
+                directory.mkdirs()
+                Log.d("KIT","mkdirs")
+            }
+
+            if (!directory.exists()) {
+                directory = File(filesDir.absolutePath)
+            }
 
             val date = Calendar.getInstance().time
 
             val filename =
                 "KIT-attendees-${date.hours}:${date.minutes}:${date.seconds} ${date.date}-${date.month + 1}-${date.year + 1900}.json"
             val file = File(directory, filename)
+
+            Log.d("KIT","filepath: ${file.absolutePath}")
 
             if (!file.exists()) file.createNewFile()
 
@@ -137,7 +149,7 @@ class CheckinHistoryActivity : AppCompatActivity() {
             Log.d("KIT", jsonRoot.toString())
             writer.write(jsonRoot.toString())
             writer.close()
-            showNoticeDialog("Check-in history saved as JSON in file:\n/Downloads/KIT event check-in/${file.name}!")
+            showNoticeDialog("Check-in history saved as JSON in file:\n${file.absolutePath}!")
         } catch (e: Exception) {
             e.printStackTrace()
             showNoticeDialog("There's an error when saving Check-in history into file!")
