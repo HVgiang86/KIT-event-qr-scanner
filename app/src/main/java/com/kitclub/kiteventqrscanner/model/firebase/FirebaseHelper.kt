@@ -75,15 +75,16 @@ object FirebaseHelper {
                 for (document in changedList) {
 
                     try {
-
                         //detect added event
                         if (document.oldIndex == -1) {
 
                             val id = document.document.id
-                            val paramList: HashMap<String, String> =
-                                document.document.data as HashMap<String, String>
-                            val attendee = Attendee(id, paramList)
-                            AttendeeList.attendeeList.add(attendee)
+                            if (!AttendeeList.containId(id)) {
+                                val paramList: HashMap<String, String> =
+                                    document.document.data as HashMap<String, String>
+                                val attendee = Attendee(id, paramList)
+                                AttendeeList.attendeeList.add(attendee)
+                            }
 
                         } else if (document.newIndex == -1) { // detect removed event
 
@@ -113,43 +114,25 @@ object FirebaseHelper {
 
     fun deleteAllRecord() {
         for (attendee in AttendeeList.attendeeList) {
-            try {
-                db.document(attendee.id).delete()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                continue
+            val id = attendee.id
+            db.document(id).delete().addOnSuccessListener {
+                Log.d(TAG, "delete attendee $id")
+                AttendeeList.removeById(id)
+            }.addOnFailureListener {
+                Log.d(TAG, "Delete fail id $id")
             }
         }
-        Log.d(TAG,"Clear all history")
+        Log.d(TAG, "Clear all history")
     }
 
-    /**
-     * Call the 'recursiveDelete' callable function with a path to initiate
-     * a server-side delete.
-     */
-    private fun deleteAtPath(path: String) {
-        val data: MutableMap<String, Any> = HashMap()
-        data["path"] = path
-        val deleteFn: HttpsCallableReference =
-            FirebaseFunctions.getInstance().getHttpsCallable("recursiveDelete")
-        deleteFn.call(data).addOnSuccessListener {
-            Log.d(TAG, "Firestore delete $path successfully")
-        }.addOnFailureListener {
-            Log.d(TAG, "Firestore delete $path fail")
-        }
-    }
 
     fun sendToFirebase(attendee: Attendee) {
 
         try {
-            db.runCatching {
-                val document = db.document(attendee.id)
-                document.set(attendee.paramList).addOnSuccessListener {
-                    Log.d(TAG, "Check-in success fully")
-                }.addOnFailureListener { Log.d(TAG, "Firestore error") }
-
-            }
-
+            val document = db.document(attendee.id)
+            document.set(attendee.paramList).addOnSuccessListener {
+                Log.d(TAG, "Check-in success fully")
+            }.addOnFailureListener { Log.d(TAG, "Firestore error") }
         } catch (e: Exception) {
             e.printStackTrace()
             return
@@ -157,18 +140,22 @@ object FirebaseHelper {
     }
 
     fun attendeeListSync() {
-        AttendeeList.attendeeList.clear()
-        db.runCatching {
-            val list = db.get().result.documents
+        db.get().addOnCompleteListener {
+            AttendeeList.attendeeList.clear()
+
+            val list = it.result.documents
+            Log.d(TAG, "get ${list.size} documents")
             if (list.isNotEmpty()) {
                 for (document in list) {
                     val id = document.reference.id
-                    val params = document.data as HashMap<String,String>
-                    AttendeeList.attendeeList.add(Attendee(id,params))
+                    val params = document.data as HashMap<String, String>
+                    AttendeeList.attendeeList.add(Attendee(id, params))
                 }
-
             }
+        }.addOnFailureListener {
+            Log.d(TAG, "sync fail")
         }
+
     }
 
 }

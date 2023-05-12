@@ -14,8 +14,8 @@ android {
         applicationId "com.kitclub.kiteventqrscanner"
         minSdk 21
         targetSdk 33
-        versionCode 8
-        versionName "1.2.2"
+        versionCode 9
+        versionName "1.4.0"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }

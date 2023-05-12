@@ -98,9 +98,11 @@ class CheckinHistoryActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun clearHistory() {
-        attendeeList.clear()
-        refreshView()
         FirebaseHelper.deleteAllRecord()
+        Handler(Looper.getMainLooper()).postDelayed({
+            refreshView()
+        }, 1500)
+        Toast.makeText(this, "\nDeleted!\n", Toast.LENGTH_SHORT).show()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
