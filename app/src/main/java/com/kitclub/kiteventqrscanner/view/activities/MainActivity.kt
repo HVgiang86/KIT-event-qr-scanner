@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var scanSuccessDialog: AlertDialog
     private lateinit var duplicateAttendeeDialog: AlertDialog
 
-    private lateinit var actionReceiver: InternetConnectionChangeReceiver
+    private lateinit var actionReceiver: InternetConnectionChangeReceiver<MainActivity>
 
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraSelector: CameraSelector? = null

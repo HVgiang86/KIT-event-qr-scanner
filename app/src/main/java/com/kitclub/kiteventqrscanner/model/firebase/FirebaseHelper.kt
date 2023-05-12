@@ -112,7 +112,15 @@ object FirebaseHelper {
     }
 
     fun deleteAllRecord() {
-        deleteAtPath("/attendees")
+        for (attendee in AttendeeList.attendeeList) {
+            try {
+                db.document(attendee.id).delete()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                continue
+            }
+        }
+        Log.d(TAG,"Clear all history")
     }
 
     /**
@@ -148,5 +156,19 @@ object FirebaseHelper {
         }
     }
 
+    fun attendeeListSync() {
+        AttendeeList.attendeeList.clear()
+        db.runCatching {
+            val list = db.get().result.documents
+            if (list.isNotEmpty()) {
+                for (document in list) {
+                    val id = document.reference.id
+                    val params = document.data as HashMap<String,String>
+                    AttendeeList.attendeeList.add(Attendee(id,params))
+                }
+
+            }
+        }
+    }
 
 }

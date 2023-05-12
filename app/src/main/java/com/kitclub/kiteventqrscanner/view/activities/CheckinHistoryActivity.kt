@@ -4,17 +4,23 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.kitclub.kiteventqrscanner.BigDataTestAsyncTask
 import com.kitclub.kiteventqrscanner.R
+import com.kitclub.kiteventqrscanner.controller.LoginController
 import com.kitclub.kiteventqrscanner.model.firebase.FirebaseHelper
 import com.kitclub.kiteventqrscanner.model.models.attendee.Attendee
 import com.kitclub.kiteventqrscanner.model.models.attendee.AttendeeList
@@ -32,12 +38,14 @@ class CheckinHistoryActivity : AppCompatActivity() {
     private lateinit var attendeeList: MutableList<Attendee>
 
     private lateinit var adapter: CheckinHistoryAdapter
+    private lateinit var attendeeCountTV: TextView
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_checkin_history)
 
+        attendeeCountTV = findViewById(R.id.attendees_count_tv)
         //ask for external storage permission
         if (shouldAskPermissions()) {
             askPermissions()
@@ -53,9 +61,6 @@ class CheckinHistoryActivity : AppCompatActivity() {
 
         attendeeList = AttendeeList.attendeeList
 
-        val attendeeCountTV: TextView = findViewById(R.id.attendees_count_tv)
-        attendeeCountTV.text = "We have ${attendeeList.size} attendees!"
-
         val linearLayoutManager = LinearLayoutManager(this)
         linearLayoutManager.reverseLayout = true
         linearLayoutManager.stackFromEnd = true
@@ -64,6 +69,8 @@ class CheckinHistoryActivity : AppCompatActivity() {
         recycler.layoutManager = linearLayoutManager
         adapter = CheckinHistoryAdapter(attendeeList, Settings.paramList, this)
         recycler.adapter = adapter
+
+        refreshView()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -77,6 +84,14 @@ class CheckinHistoryActivity : AppCompatActivity() {
             R.id.export_menu -> {
                 exportMenu()
             }
+
+            R.id.cloud_sync -> {
+                confirmCloudSync()
+            }
+
+            R.id.clear_menu -> {
+                confirmClear()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -84,7 +99,7 @@ class CheckinHistoryActivity : AppCompatActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun clearHistory() {
         attendeeList.clear()
-        adapter.notifyDataSetChanged()
+        refreshView()
         FirebaseHelper.deleteAllRecord()
     }
 
@@ -138,16 +153,35 @@ class CheckinHistoryActivity : AppCompatActivity() {
     }
 
     private fun confirmClear() {
-        val dialog = AlertDialog.Builder(this)
-        dialog.setTitle("Delete all check-in history?").setIcon(R.drawable.ic_action_save)
-            .setMessage("All your history will be deleted!").setCancelable(false)
-            .setPositiveButton("Delete") { _, _ ->
-                clearHistory()
-            }.setNegativeButton("Cancel") { dialog1, _ ->
+        val layoutInflater = layoutInflater
+        val promptView = layoutInflater.inflate(R.layout.password_promt_dialog, null)
+
+        val dialogBuilder =
+            AlertDialog.Builder(this).setView(promptView).setIcon(R.drawable.ic_warning)
+
+        val passwordPromptEdt: EditText = promptView.findViewById(R.id.prompt_password_edt)
+        val noticeTV: TextView = promptView.findViewById(R.id.notice_tv)
+
+        dialogBuilder.setCancelable(false).setPositiveButton("OK") { _, _ -> }
+            .setNegativeButton("Cancel") { dialog1, _ ->
                 dialog1.cancel()
             }
 
-        dialog.create().show()
+        val dialog = dialogBuilder.create()
+        dialog.show()
+
+        val buttonOK: Button = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+        buttonOK.setOnClickListener {
+            if (LoginController.checkAdminPassword(
+                    passwordPromptEdt.text.toString().trim()
+                )
+            ) {
+                Log.d("KIT", "confirm clear history")
+                dialog.dismiss()
+                clearHistory()
+            } else noticeTV.visibility = View.VISIBLE
+        }
+
     }
 
     private fun confirmCloudSync() {
@@ -163,8 +197,19 @@ class CheckinHistoryActivity : AppCompatActivity() {
         dialog.create().show()
     }
 
-    private fun cloudSync() {
+    @SuppressLint("NotifyDataSetChanged")
+    private fun refreshView() {
+        adapter.notifyDataSetChanged()
+        attendeeCountTV.text = "We have ${attendeeList.size} attendees!"
+    }
 
+
+    private fun cloudSync() {
+        FirebaseHelper.attendeeListSync()
+        Handler(Looper.getMainLooper()).postDelayed({
+            refreshView()
+        }, 1500)
+        Toast.makeText(this, "\nSynced!\n", Toast.LENGTH_SHORT).show()
     }
 
     private fun shouldAskPermissions(): Boolean {
